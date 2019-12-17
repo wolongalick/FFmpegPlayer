@@ -1,0 +1,43 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+    defaultConfig {
+        applicationId "com.alick.ffmpegplayer"
+        minSdkVersion 28
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+        sourceSets{
+            main{
+                jniLibs.srcDirs=['libs']
+            }
+
+        }
+    }
+
+    //debug签名配置
+    signingConfigs {
+        config {
+            keyAlias 'ffmpeg'
+            keyPassword '123123'
+            storeFile file('ffmpeg.jks')
+            storePassword '1231230'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+}
