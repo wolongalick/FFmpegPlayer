@@ -10,12 +10,16 @@ android {
         versionCode 1
         versionName "1.0"
 
-        sourceSets{
-            main{
-                jniLibs.srcDirs=['libs']
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
             }
-
+            ndk{
+                abiFilters 'armeabi','x86'
+            }
         }
+
+
     }
 
     //debug签名配置

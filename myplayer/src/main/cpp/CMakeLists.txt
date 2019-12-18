@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.4.1)
 
 include_directories(include)
 
-set(FF ${CMAKE_CURRENT_SOURCE_DIR}/../../../libs/${ANDROID_ABI})
+set(FF ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
 
 add_library(avcodec-57 SHARED IMPORTED)
 set_target_properties(avcodec-57 PROPERTIES IMPORTED_LOCATION ${FF}/libavcodec-57.so)
