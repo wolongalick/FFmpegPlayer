@@ -1,38 +1,28 @@
 #include <jni.h>
 #include <string>
-#include <android/log.h>
-#include <queue>
+#include "cxw_log.h"
 
 
-extern "C" {
-#include <libavformat/avformat.h>
-#include "cxw_str.h"
+pthread_t pthread;
+
+
+void *normalCallback(void *data){
+    LOGI("create normal thread from C++");
+    pthread_exit(&pthread);
 }
 
-#define LOG_TAG "cxwFFmpeg"
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__);
-#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__);
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_alick_ffmpegplayer_MainActivity_parseFile(JNIEnv *env, jobject thiz, jstring file_path) {
+    std::string hello = "Hello from C++";
 
 
-static double r2d(AVRational avRational) {
-    LOGI("num:%d,den:%d", avRational.num, avRational.den);
-    return avRational.num == 0 || avRational.den == 0 ? 0 : (double) avRational.num /
-                                                            (double) avRational.den;
+
+    pthread_create(&pthread, NULL,normalCallback, NULL);
+
+
+
+
+
+    return env->NewStringUTF(hello.c_str());
 }
-
-/**
- * 获取当前毫秒
- * @return
- */
-long long getNowMs() {
-    struct timeval tv;
-    gettimeofday(&tv, nullptr);
-    LOGI("tv_sec:%ld,tv_usec:%ld",tv.tv_sec,tv.tv_usec);
-    int sec = tv.tv_sec;//100小时
-    long long t = sec * 1000 + tv.tv_usec / 1000;
-    return t;
-}
-
-
-
-

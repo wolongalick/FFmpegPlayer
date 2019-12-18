@@ -57,9 +57,9 @@ public class MainActivity extends AppCompatActivity {
             T.show(MainActivity.this,"文件路径不能为空");
             return;
         }
-        myVideoView.player(filePath);
-//        String result = parseFile(filePath);
-//        T.show(MainActivity.this,result);
+//        myVideoView.player(filePath);
+        String result = parseFile(filePath);
+        T.show(MainActivity.this,result);
     }
 
     private native String parseFile(String filePath);
