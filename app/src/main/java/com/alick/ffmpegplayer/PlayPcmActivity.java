@@ -22,8 +22,8 @@ public class PlayPcmActivity extends AppCompatActivity {
 
 
     public void playPcm(View view) {
-        wlPlayer.setSource("");
+        //世间美好与你环环相扣MP3
+        wlPlayer.setSource("http://m7.music.126.net/20191224212757/47d12664c1c1c12f08c1e12bcbc7eab1/ymusic/0459/045c/520c/330c359473365e50a368ef0d43bc612f.mp3");
         wlPlayer.prepare();
-
     }
 }

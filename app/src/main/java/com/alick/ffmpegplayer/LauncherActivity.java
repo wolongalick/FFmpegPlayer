@@ -10,24 +10,33 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.alick.ffmpegplayer.utils.T;
+import com.alick.myplayer.utils.T;
 
 public class LauncherActivity extends AppCompatActivity {
-    private static final int REQUEST_CODE=1000;
-    private String[] permissionGroup=new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    private static final int      REQUEST_CODE    = 1000;
+    private              String[] permissionGroup = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    private boolean hasPermission=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lanucher);
-        ActivityCompat.requestPermissions(this,permissionGroup,REQUEST_CODE);
+        ActivityCompat.requestPermissions(this, permissionGroup, REQUEST_CODE);
     }
 
     public void playPcm(View view) {
+        if(!hasPermission){
+            ActivityCompat.requestPermissions(this, permissionGroup, REQUEST_CODE);
+            return;
+        }
         startActivity(new Intent(this, PlayPcmActivity.class));
     }
 
     public void playMP4(View view) {
+        if(!hasPermission){
+            ActivityCompat.requestPermissions(this, permissionGroup, REQUEST_CODE);
+            return;
+        }
         startActivity(new Intent(this, PlayMP4Activity.class));
     }
 
@@ -35,10 +44,11 @@ public class LauncherActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode==REQUEST_CODE){
-            for (int result:grantResults) {
-                if(result== PackageManager.PERMISSION_DENIED){
-                    T.show(LauncherActivity.this,"请授予读写存储卡权限");
+        if (requestCode == REQUEST_CODE) {
+            for (int result : grantResults) {
+                if (result == PackageManager.PERMISSION_DENIED) {
+                    T.show(LauncherActivity.this, "请授予读写存储卡权限");
+                    hasPermission=false;
                     return;
                 }
             }

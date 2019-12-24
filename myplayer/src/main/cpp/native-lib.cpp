@@ -53,7 +53,7 @@ void *customCallBack(void *data) {
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_alick_ffmpegplayer_MainActivity_parseFile(JNIEnv *env, jobject thiz, jstring file_path) {
+Java_com_alick_ffmpegplayer_PlayMP4Activity_parseFile(JNIEnv *env, jobject thiz, jstring file_path) {
     std::string hello = "Hello from C++";
 //    pthread_create(&pthread, NULL,normalCallback, NULL);
 
@@ -70,4 +70,11 @@ Java_com_alick_ffmpegplayer_MainActivity_parseFile(JNIEnv *env, jobject thiz, js
 
 
     return env->NewStringUTF(hello.c_str());
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_alick_myplayer_WlPlayer_n_1prepare(JNIEnv *env, jobject thiz, jstring source) {
+
+
 }

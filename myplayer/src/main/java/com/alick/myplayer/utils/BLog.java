@@ -1,4 +1,4 @@
-package com.alick.ffmpegplayer.utils;
+package com.alick.myplayer.utils;
 
 import android.text.TextUtils;
 import android.util.Log;
