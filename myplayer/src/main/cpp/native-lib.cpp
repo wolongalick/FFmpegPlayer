@@ -15,7 +15,6 @@ pthread_cond_t cond;
 
 std::queue<int> queue;
 
-bool exit = false;
 
 void *normalCallback(void *data) {
     LOGI("create normal thread from C++");
@@ -65,7 +64,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 
     JNIEnv *env;
 
-    if (vm->GetEnv((void **) (env), JNI_VERSION_1_4) != JNI_OK) {
+    if (vm->GetEnv((void **) (&env), JNI_VERSION_1_4) != JNI_OK) {
 
         return result;
     }
@@ -97,21 +96,41 @@ Java_com_alick_ffmpegplayer_PlayMP4Activity_parseFile(JNIEnv *env, jobject thiz,
     return env->NewStringUTF(hello.c_str());
 }
 
+/**
+ * 准备播放
+ */
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_alick_myplayer_WlPlayer_n_1prepare(JNIEnv *env, jobject thiz, jstring source_) {
     const char *source = env->GetStringUTFChars(source_, 0);
 
-    if(fFmpeg==NULL){
-        if(callJava==NULL){
-            callJava=new WlCallJava(javaVm,env,&thiz);
-        }
-        fFmpeg=new WlFFmpeg(callJava,source);
-    }
+    LOGI("url路径:%s", source);
 
+
+
+    if (fFmpeg == NULL) {
+        if (callJava == NULL) {
+            callJava = new WlCallJava(javaVm, env, &thiz);
+        }
+        fFmpeg = new WlFFmpeg(callJava, source);
+    }
     fFmpeg->prepared();
 
+//    env->ReleaseStringUTFChars(source_,source);
 
-    env->ReleaseStringUTFChars(source_,source);
+}
+
+/**
+ * 开始播放
+ */
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_alick_myplayer_WlPlayer_n_1start(JNIEnv *env, jobject thiz) {
+    if(fFmpeg==NULL){
+        LOGE("fFmpeg为null");
+        return;
+    }
+
+    fFmpeg->start();
 
 }

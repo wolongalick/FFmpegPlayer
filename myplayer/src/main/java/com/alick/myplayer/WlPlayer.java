@@ -45,7 +45,7 @@ public class WlPlayer {
             @Override
             public void run() {
                 super.run();
-
+                n_prepare(source);
 
             }
         }.start();
@@ -54,6 +54,22 @@ public class WlPlayer {
 
     public void setOnPreparedListener(OnPreparedListener onPreparedListener) {
         this.onPreparedListener = onPreparedListener;
+    }
+
+    public void start(){
+        if(TextUtils.isEmpty(source)){
+            if(TextUtils.isEmpty(source)){
+                BLog.i("source不能为null");
+                return;
+            }
+        }
+
+        new Thread(){
+            @Override
+            public void run() {
+                n_start();
+            }
+        }.start();
     }
 
     public void onCallPrepared(){
@@ -65,5 +81,6 @@ public class WlPlayer {
     public native void n_prepare(String source);
 
 
+    public native void n_start();
 
 }

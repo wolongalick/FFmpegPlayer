@@ -34,6 +34,8 @@ public:
 
     void decodeFFmpegThread();
 
+    void start();
+
 };
 
 

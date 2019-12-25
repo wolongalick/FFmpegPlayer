@@ -49,16 +49,38 @@ void WlFFmpeg::decodeFFmpegThread() {
         LOGE("avformat_find_stream_info失败:%s", av_err2str(result));
         return;
     }
+    
+    LOGI("流个数:%d",pFormatCtx->nb_streams);
+    
 
     for (int i = 0; i < pFormatCtx->nb_streams; ++i) {
-        if(pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_AUDIO){
-
+        AVMediaType avMediaType = pFormatCtx->streams[i]->codecpar->codec_type;
+        LOGI("avMediaType类型:%d",avMediaType);
+        if(avMediaType == AVMEDIA_TYPE_AUDIO){
             if(wlAudio==NULL){
+                LOGI("wlAudio初始化");
                 wlAudio=new WlAudio();
                 wlAudio->streamIndex=i;
                 wlAudio->codecpar=pFormatCtx->streams[i]->codecpar;
+            } else{
+                LOGI("wlAudio不为null,不需要初始化");
             }
         }
+    }
+
+    if(wlAudio==NULL){
+        LOGI("wlAudio为null");
+        return;
+    }
+
+    if(wlAudio->codecpar==NULL){
+        LOGI("wlAudio->codecpar为null");
+        return;
+    }
+
+    if(wlAudio->codecpar->codec_id==NULL){
+        LOGI("wlAudio->codecpar->codec_id为null");
+        return;
     }
 
     AVCodec *avCodec=avcodec_find_decoder(wlAudio->codecpar->codec_id);
@@ -67,6 +89,12 @@ void WlFFmpeg::decodeFFmpegThread() {
         return;
     }
 
+    wlAudio->avCodecContext=avcodec_alloc_context3(avCodec);
+
+    if(!wlAudio->avCodecContext){
+        LOGE("avcodec_alloc_context3失败");
+        return;
+    }
 
     result=avcodec_parameters_to_context(wlAudio->avCodecContext,wlAudio->codecpar);
 
@@ -85,6 +113,42 @@ void WlFFmpeg::decodeFFmpegThread() {
     callJava->onCallPrepared(CHILD_THREAD);
 
     wlAudio->avCodecContext=avcodec_alloc_context3(avCodec);
+
+
+
+}
+
+void WlFFmpeg::start() {
+    if(wlAudio==NULL){
+        LOGE("wlAudio为null");
+        return;
+    }
+
+    int count=0;
+
+    while (1){
+        AVPacket *avPacket=av_packet_alloc();
+        if(av_read_frame(pFormatCtx,avPacket)==0){
+            //返回0代表成功
+
+            if(avPacket->stream_index==wlAudio->streamIndex){
+                count++;
+                LOGI("解码第%d帧",count);
+                av_packet_free(&avPacket);
+                av_free(avPacket);
+                avPacket=NULL;
+            }
+        } else{
+            //返回非0代表失败
+            av_packet_free(&avPacket);
+            av_free(avPacket);
+            avPacket=NULL;
+            break;
+        }
+
+
+    }
+
 
 
 

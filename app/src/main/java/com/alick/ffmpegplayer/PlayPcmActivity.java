@@ -21,16 +21,14 @@ public class PlayPcmActivity extends AppCompatActivity {
             @Override
             public void onPrepared() {
                 BLog.i("准备好了--->onPrepared()");
+                wlPlayer.start();
             }
         });
     }
 
-
-
-
     public void playPcm(View view) {
-        //世间美好与你环环相扣MP3
-        wlPlayer.setSource("http://m7.music.126.net/20191224212757/47d12664c1c1c12f08c1e12bcbc7eab1/ymusic/0459/045c/520c/330c359473365e50a368ef0d43bc612f.mp3");
+        //世间美好与你环环相扣.MP3
+        wlPlayer.setSource("http://192.168.31.48:8080/examples/xingli.mp3");
         wlPlayer.prepare();
     }
 }

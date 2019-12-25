@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="播放pcm"
-        android:onClick="playPcm"
+        android:onClick="gotoPlayPcm"
         />
 
 
@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="播放mp4"
-        android:onClick="playMP4"
+        android:onClick="gotoPlayMP4"
         />
 
 

@@ -24,7 +24,7 @@ public class LauncherActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, permissionGroup, REQUEST_CODE);
     }
 
-    public void playPcm(View view) {
+    public void gotoPlayPcm(View view) {
         if(!hasPermission){
             ActivityCompat.requestPermissions(this, permissionGroup, REQUEST_CODE);
             return;
@@ -32,7 +32,7 @@ public class LauncherActivity extends AppCompatActivity {
         startActivity(new Intent(this, PlayPcmActivity.class));
     }
 
-    public void playMP4(View view) {
+    public void gotoPlayMP4(View view) {
         if(!hasPermission){
             ActivityCompat.requestPermissions(this, permissionGroup, REQUEST_CODE);
             return;

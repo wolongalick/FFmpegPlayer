@@ -6,7 +6,9 @@
 #define FFMPEGPLAYER_WLAUDIO_H
 
 
+extern "C" {
 #include <libavcodec/avcodec.h>
+};
 
 class WlAudio {
 public:
