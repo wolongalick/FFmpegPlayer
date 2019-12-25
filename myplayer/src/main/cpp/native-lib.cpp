@@ -3,8 +3,10 @@
 #include <queue>
 #include <unistd.h>
 #include "cxw_log.h"
+#include "WlCallJava.h"
+#include "WlFFmpeg.h"
 
-
+//======================学习多线程同步-begin===========================
 pthread_t pthread;
 pthread_t produc;
 pthread_t custom;
@@ -13,7 +15,7 @@ pthread_cond_t cond;
 
 std::queue<int> queue;
 
-bool exit= false;
+bool exit = false;
 
 void *normalCallback(void *data) {
     LOGI("create normal thread from C++");
@@ -49,11 +51,34 @@ void *customCallBack(void *data) {
     }
     pthread_exit(&custom);
 }
+//======================学习多线程同步-end============================
+
+JavaVM *javaVm = NULL;
+WlCallJava *callJava = NULL;
+WlFFmpeg *fFmpeg = NULL;
+
+
+extern "C" {
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+    jint result = -1;
+    javaVm = vm;
+
+    JNIEnv *env;
+
+    if (vm->GetEnv((void **) (env), JNI_VERSION_1_4) != JNI_OK) {
+
+        return result;
+    }
+    return JNI_VERSION_1_4;
+}
+}
+
 
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_alick_ffmpegplayer_PlayMP4Activity_parseFile(JNIEnv *env, jobject thiz, jstring file_path) {
+Java_com_alick_ffmpegplayer_PlayMP4Activity_parseFile(JNIEnv *env, jobject thiz,
+                                                      jstring file_path) {
     std::string hello = "Hello from C++";
 //    pthread_create(&pthread, NULL,normalCallback, NULL);
 
@@ -74,7 +99,19 @@ Java_com_alick_ffmpegplayer_PlayMP4Activity_parseFile(JNIEnv *env, jobject thiz,
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_alick_myplayer_WlPlayer_n_1prepare(JNIEnv *env, jobject thiz, jstring source) {
+Java_com_alick_myplayer_WlPlayer_n_1prepare(JNIEnv *env, jobject thiz, jstring source_) {
+    const char *source = env->GetStringUTFChars(source_, 0);
 
+    if(fFmpeg==NULL){
+        if(callJava==NULL){
+            callJava=new WlCallJava(javaVm,env,&thiz);
+        }
+        fFmpeg=new WlFFmpeg(callJava,source);
+    }
+
+    fFmpeg->prepared();
+
+
+    env->ReleaseStringUTFChars(source_,source);
 
 }

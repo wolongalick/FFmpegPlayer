@@ -47,7 +47,9 @@ add_library( # Sets the name of the library.
 
         # Provides a relative path to your source file(s).
         native-lib.cpp
-        CallJava.cpp
+        WlCallJava.cpp
+        WlFFmpeg.cpp
+        WlAudio.cpp
         cxw_str.c
         )
 

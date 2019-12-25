@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.alick.ffmpegplayer.R;
+import com.alick.myplayer.R;
 
 import java.util.Timer;
 import java.util.TimerTask;

@@ -6,6 +6,8 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.alick.myplayer.WlPlayer;
+import com.alick.myplayer.listener.OnPreparedListener;
+import com.alick.myplayer.utils.BLog;
 
 public class PlayPcmActivity extends AppCompatActivity {
     private WlPlayer wlPlayer;
@@ -15,7 +17,12 @@ public class PlayPcmActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_pcm);
         wlPlayer=new WlPlayer();
-
+        wlPlayer.setOnPreparedListener(new OnPreparedListener() {
+            @Override
+            public void onPrepared() {
+                BLog.i("准备好了--->onPrepared()");
+            }
+        });
     }
 
 
