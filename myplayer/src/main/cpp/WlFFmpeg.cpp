@@ -5,10 +5,12 @@
 
 #include "WlFFmpeg.h"
 
-WlFFmpeg::WlFFmpeg(WlCallJava *callJava, const char *url) {
+WlFFmpeg::WlFFmpeg(WlPlaystatus *wlPlaystatus, WlCallJava *callJava, const char *url) {
+    this->playstatus = wlPlaystatus;
     this->callJava = callJava;
     this->url = url;
 }
+
 
 WlFFmpeg::~WlFFmpeg() {
 
@@ -36,120 +38,112 @@ void WlFFmpeg::decodeFFmpegThread() {
 
     pFormatCtx = avformat_alloc_context();
 
-    int result = avformat_open_input(&pFormatCtx, url, NULL, NULL);
+    int result = avformat_open_input(&pFormatCtx, url, NULL, nullptr);
     if (result != 0) {
         //返回值不为0说明失败了
         LOGE("avformat_open_input失败:%s", av_err2str(result));
         return;
     }
 
-    result = avformat_find_stream_info(pFormatCtx, NULL);
-    if(result<0){
+    result = avformat_find_stream_info(pFormatCtx, nullptr);
+    if (result < 0) {
         //返回值小于0说明失败了
         LOGE("avformat_find_stream_info失败:%s", av_err2str(result));
         return;
     }
-    
-    LOGI("流个数:%d",pFormatCtx->nb_streams);
-    
+
+    LOGI("流个数:%d", pFormatCtx->nb_streams);
 
     for (int i = 0; i < pFormatCtx->nb_streams; ++i) {
-        AVMediaType avMediaType = pFormatCtx->streams[i]->codecpar->codec_type;
-        LOGI("avMediaType类型:%d",avMediaType);
-        if(avMediaType == AVMEDIA_TYPE_AUDIO){
-            if(wlAudio==NULL){
-                LOGI("wlAudio初始化");
-                wlAudio=new WlAudio();
-                wlAudio->streamIndex=i;
-                wlAudio->codecpar=pFormatCtx->streams[i]->codecpar;
-            } else{
+        AVCodecParameters *pParameters = pFormatCtx->streams[i]->codecpar;
+        AVMediaType avMediaType = pParameters->codec_type;
+        LOGI("avMediaType类型:%d", avMediaType);
+        if (avMediaType == AVMEDIA_TYPE_AUDIO) {
+            if (wlAudio == nullptr) {
+                wlAudio = new WlAudio(this->playstatus);
+                wlAudio->streamIndex = i;
+                wlAudio->codecpar = pParameters;
+                LOGI("wlAudio初始化成功");
+            } else {
                 LOGI("wlAudio不为null,不需要初始化");
             }
+            break;
         }
     }
 
-    if(wlAudio==NULL){
-        LOGI("wlAudio为null");
-        return;
-    }
-
-    if(wlAudio->codecpar==NULL){
-        LOGI("wlAudio->codecpar为null");
-        return;
-    }
-
-    if(wlAudio->codecpar->codec_id==NULL){
-        LOGI("wlAudio->codecpar->codec_id为null");
-        return;
-    }
-
-    AVCodec *avCodec=avcodec_find_decoder(wlAudio->codecpar->codec_id);
-    if(!avCodec){
+    AVCodec *avCodec = avcodec_find_decoder(wlAudio->codecpar->codec_id);
+    if (!avCodec) {
         LOGE("avcodec_find_decoder失败");
         return;
     }
 
-    wlAudio->avCodecContext=avcodec_alloc_context3(avCodec);
+    wlAudio->avCodecContext = avcodec_alloc_context3(avCodec);
 
-    if(!wlAudio->avCodecContext){
+    if (!wlAudio->avCodecContext) {
         LOGE("avcodec_alloc_context3失败");
         return;
     }
 
-    result=avcodec_parameters_to_context(wlAudio->avCodecContext,wlAudio->codecpar);
+    result = avcodec_parameters_to_context(wlAudio->avCodecContext, wlAudio->codecpar);
 
-    if(result<0){
+    if (result < 0) {
         //小于0代表失败
-        LOGE("avcodec_parameters_to_context失败:%s",av_err2str(result));
+        LOGE("avcodec_parameters_to_context失败:%s", av_err2str(result));
         return;
     }
 
-    result = avcodec_open2(wlAudio->avCodecContext, avCodec, NULL);
-    if(result!=0){
-        LOGE("avcodec_open2失败:%s",av_err2str(result));
+    result = avcodec_open2(wlAudio->avCodecContext, avCodec, nullptr);
+    if (result != 0) {
+        LOGE("avcodec_open2失败:%s", av_err2str(result));
         return;
     }
 
     callJava->onCallPrepared(CHILD_THREAD);
 
-    wlAudio->avCodecContext=avcodec_alloc_context3(avCodec);
-
+    wlAudio->avCodecContext = avcodec_alloc_context3(avCodec);
 
 
 }
 
 void WlFFmpeg::start() {
-    if(wlAudio==NULL){
+    if (wlAudio == nullptr) {
         LOGE("wlAudio为null");
         return;
     }
 
-    int count=0;
+    int count = 0;
 
-    while (1){
-        AVPacket *avPacket=av_packet_alloc();
-        if(av_read_frame(pFormatCtx,avPacket)==0){
+    while (1) {
+        AVPacket *avPacket = av_packet_alloc();
+        if (av_read_frame(pFormatCtx, avPacket) == 0) {
             //返回0代表成功
-
-            if(avPacket->stream_index==wlAudio->streamIndex){
+            if (avPacket->stream_index == wlAudio->streamIndex) {
                 count++;
-                LOGI("解码第%d帧",count);
+                wlAudio->queue->putAvPacket(avPacket);
+            } else{
+                //如果不是对应的流,也将avPacket释放
                 av_packet_free(&avPacket);
                 av_free(avPacket);
-                avPacket=NULL;
+                avPacket = nullptr;
             }
-        } else{
-            //返回非0代表失败
+        } else {
+            //返回非0代表失败,要将avPacket释放
             av_packet_free(&avPacket);
             av_free(avPacket);
-            avPacket=NULL;
+            avPacket = nullptr;
             break;
         }
-
-
     }
 
+    while (wlAudio->queue->getQueueSize()>0){
+        AVPacket *pAvPacket = av_packet_alloc();
+        wlAudio->queue->getAvPacket(pAvPacket);
 
+        av_packet_free(&pAvPacket);
+        av_free(pAvPacket);
+        pAvPacket = nullptr;
+    }
 
+    LOGI("解码完成");
 
 }

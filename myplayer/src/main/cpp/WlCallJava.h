@@ -17,9 +17,9 @@
 class WlCallJava {
 public:
 
-    JavaVM *javaVm = NULL;
-    JNIEnv *jniEnv = NULL;
-    jobject jobj = NULL;
+    JavaVM *javaVm = nullptr;
+    JNIEnv *jniEnv = nullptr;
+    jobject jobj = nullptr;
 
     jmethodID jmid_prepared;
 

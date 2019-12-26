@@ -6,6 +6,8 @@
 #define FFMPEGPLAYER_WLAUDIO_H
 
 
+#include "WlQueue.h"
+
 extern "C" {
 #include <libavcodec/avcodec.h>
 };
@@ -13,11 +15,13 @@ extern "C" {
 class WlAudio {
 public:
     int streamIndex = -1;//流索引
-    AVCodecParameters *codecpar;
-    AVCodecContext *avCodecContext = NULL;
+    AVCodecParameters *codecpar = nullptr;
+    AVCodecContext *avCodecContext = nullptr;
+    WlQueue *queue = nullptr;
+    WlPlaystatus *playstatus = nullptr;
 
 public:
-    WlAudio();
+    WlAudio(WlPlaystatus *playstatus);
 
     ~WlAudio();
 

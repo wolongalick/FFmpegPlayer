@@ -28,7 +28,10 @@ public class PlayPcmActivity extends AppCompatActivity {
 
     public void playPcm(View view) {
         //世间美好与你环环相扣.MP3
-        wlPlayer.setSource("http://192.168.31.48:8080/examples/xingli.mp3");
+//        wlPlayer.setSource("http://192.168.31.48:8080/examples/xingli.mp3");
+//        wlPlayer.setSource("http://q33lsnest.bkt.clouddn.com/siben.mp3");
+//        wlPlayer.setSource("http://q33lsnest.bkt.clouddn.com/Valve%20Studio%20Orchestra%20-%20music%20battle%20002.mp3");
+        wlPlayer.setSource("http://q33lsnest.bkt.clouddn.com/Valve%20Studio%20Orchestra%20-%20hero%20select%20underscore%20loop.mp3");
         wlPlayer.prepare();
     }
 }

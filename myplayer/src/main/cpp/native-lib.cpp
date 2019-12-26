@@ -15,7 +15,6 @@ pthread_cond_t cond;
 
 std::queue<int> queue;
 
-
 void *normalCallback(void *data) {
     LOGI("create normal thread from C++");
     pthread_exit(&pthread);
@@ -52,9 +51,10 @@ void *customCallBack(void *data) {
 }
 //======================学习多线程同步-end============================
 
-JavaVM *javaVm = NULL;
-WlCallJava *callJava = NULL;
-WlFFmpeg *fFmpeg = NULL;
+JavaVM *javaVm = nullptr;
+WlCallJava *callJava = nullptr;
+WlFFmpeg *fFmpeg = nullptr;
+WlPlaystatus *playstatus = nullptr;
 
 
 extern "C" {
@@ -79,18 +79,18 @@ JNIEXPORT jstring JNICALL
 Java_com_alick_ffmpegplayer_PlayMP4Activity_parseFile(JNIEnv *env, jobject thiz,
                                                       jstring file_path) {
     std::string hello = "Hello from C++";
-//    pthread_create(&pthread, NULL,normalCallback, NULL);
+//    pthread_create(&pthread, NULL,normalCallback, nullptr);
 
 
     for (int i = 0; i < 10; ++i) {
         queue.push(i);
     }
 
-    pthread_mutex_init(&mutex, NULL);
-    pthread_cond_init(&cond, NULL);
+    pthread_mutex_init(&mutex, nullptr);
+    pthread_cond_init(&cond, nullptr);
 
-    pthread_create(&produc, NULL, producCallBack, NULL);
-    pthread_create(&custom, NULL, customCallBack, NULL);
+    pthread_create(&produc, nullptr, producCallBack, nullptr);
+    pthread_create(&custom, nullptr, customCallBack, nullptr);
 
 
     return env->NewStringUTF(hello.c_str());
@@ -107,12 +107,14 @@ Java_com_alick_myplayer_WlPlayer_n_1prepare(JNIEnv *env, jobject thiz, jstring s
     LOGI("url路径:%s", source);
 
 
-
     if (fFmpeg == NULL) {
         if (callJava == NULL) {
             callJava = new WlCallJava(javaVm, env, &thiz);
         }
-        fFmpeg = new WlFFmpeg(callJava, source);
+
+        playstatus=new WlPlaystatus();
+
+        fFmpeg = new WlFFmpeg(playstatus,callJava, source);
     }
     fFmpeg->prepared();
 
@@ -126,7 +128,7 @@ Java_com_alick_myplayer_WlPlayer_n_1prepare(JNIEnv *env, jobject thiz, jstring s
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_alick_myplayer_WlPlayer_n_1start(JNIEnv *env, jobject thiz) {
-    if(fFmpeg==NULL){
+    if (fFmpeg == NULL) {
         LOGE("fFmpeg为null");
         return;
     }

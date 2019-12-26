@@ -18,15 +18,15 @@ class WlFFmpeg {
 
 
 public:
-    WlCallJava *callJava = NULL;
-    const char *url = NULL;
+    WlCallJava *callJava = nullptr;
+    const char *url = nullptr;
     pthread_t decodeThread;
-    AVFormatContext *pFormatCtx = NULL;
-    WlAudio *wlAudio;
-
+    AVFormatContext *pFormatCtx = nullptr;
+    WlAudio *wlAudio = nullptr;
+    WlPlaystatus *playstatus = nullptr;
 
 public:
-    WlFFmpeg(WlCallJava *callJava, const char *url);
+    WlFFmpeg(WlPlaystatus *wlPlaystatus,WlCallJava *callJava, const char *url);
 
     ~WlFFmpeg();
 
