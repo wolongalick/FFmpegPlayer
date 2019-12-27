@@ -5,6 +5,8 @@
 #include "cxw_log.h"
 #include "WlCallJava.h"
 #include "WlFFmpeg.h"
+#include <SLES/OpenSLES.h>
+#include <SLES/OpenSLES_Android.h>
 
 //======================学习多线程同步-begin===========================
 pthread_t pthread;
@@ -55,6 +57,9 @@ JavaVM *javaVm = nullptr;
 WlCallJava *callJava = nullptr;
 WlFFmpeg *fFmpeg = nullptr;
 WlPlaystatus *playstatus = nullptr;
+
+SLObjectItf engineObjectItf = nullptr;
+SLEngineItf engineEngine = nullptr;
 
 
 extern "C" {
@@ -112,11 +117,14 @@ Java_com_alick_myplayer_WlPlayer_n_1prepare(JNIEnv *env, jobject thiz, jstring s
             callJava = new WlCallJava(javaVm, env, &thiz);
         }
 
-        playstatus=new WlPlaystatus();
+        playstatus = new WlPlaystatus();
 
-        fFmpeg = new WlFFmpeg(playstatus,callJava, source);
+        fFmpeg = new WlFFmpeg(playstatus, callJava, source);
     }
     fFmpeg->prepared();
+
+
+
 
 //    env->ReleaseStringUTFChars(source_,source);
 
@@ -134,5 +142,29 @@ Java_com_alick_myplayer_WlPlayer_n_1start(JNIEnv *env, jobject thiz) {
     }
 
     fFmpeg->start();
+
+}
+
+/**
+ * 用OpenSL_ES播放
+ */
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_alick_ffmpegplayer_OpenSLESActivity_ByOpenSL_1ES(JNIEnv *env, jobject thiz, jstring url_) {
+    // TODO: implement ByOpenSL_ES()
+
+    const char *url = env->GetStringUTFChars(url_, false);
+
+    SLresult result = NULL;
+    //1.创建接口对象
+    result = slCreateEngine(&engineObjectItf, 0, nullptr, 0, nullptr, nullptr);
+
+
+    (*engineObjectItf)->Realize(engineObjectItf, SL_BOOLEAN_FALSE);
+    (*engineObjectItf)->GetInterface(engineObjectItf, SL_IID_ENGINE, &engineEngine);
+
+    //2.设置混音器
+
+
 
 }
