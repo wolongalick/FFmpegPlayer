@@ -229,9 +229,9 @@ Java_com_alick_ffmpegplayer_OpenSLESActivity_ByOpenSL_1ES(JNIEnv *env, jobject t
 
     // 第三步--------------------------------------------
     // 创建播放器
+    LOGI("创建播放器");
     SLDataLocator_AndroidSimpleBufferQueue android_queue = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,
                                                             2};
-
     SLDataFormat_PCM pcm = {
             SL_DATAFORMAT_PCM,
             2,
@@ -260,8 +260,8 @@ Java_com_alick_ffmpegplayer_OpenSLESActivity_ByOpenSL_1ES(JNIEnv *env, jobject t
 
     //第四步---------------------------------------
     // 创建缓冲区和回调函数
+    LOGI("创建缓冲区和回调函数");
 
-    //第四步
     (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_BUFFERQUEUE, &pcmBufferQueue);
 
     //4.设置缓冲队列和回调函数

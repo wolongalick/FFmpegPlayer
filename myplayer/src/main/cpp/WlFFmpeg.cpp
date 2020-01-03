@@ -111,16 +111,19 @@ void WlFFmpeg::start() {
         return;
     }
 
+    wlAudio->play();
+
+
     int count = 0;
 
-    while (1) {
+    while (playstatus != nullptr && !playstatus->exit) {
         AVPacket *avPacket = av_packet_alloc();
         if (av_read_frame(pFormatCtx, avPacket) == 0) {
             //返回0代表成功
             if (avPacket->stream_index == wlAudio->streamIndex) {
                 count++;
                 wlAudio->queue->putAvPacket(avPacket);
-            } else{
+            } else {
                 //如果不是对应的流,也将avPacket释放
                 av_packet_free(&avPacket);
                 av_free(avPacket);
@@ -131,19 +134,16 @@ void WlFFmpeg::start() {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = nullptr;
-            break;
+
+            while (playstatus != nullptr && !playstatus->exit) {
+                if (wlAudio->queue->getQueueSize() > 0) {
+                    continue;
+                } else {
+                    playstatus->exit = true;
+                    break;
+                }
+            }
         }
     }
-
-    while (wlAudio->queue->getQueueSize()>0){
-        AVPacket *pAvPacket = av_packet_alloc();
-        wlAudio->queue->getAvPacket(pAvPacket);
-
-        av_packet_free(&pAvPacket);
-        av_free(pAvPacket);
-        pAvPacket = nullptr;
-    }
-
     LOGI("解码完成");
-
 }

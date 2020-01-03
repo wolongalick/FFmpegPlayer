@@ -7,9 +7,11 @@
 
 
 #include "WlQueue.h"
+#include "cxw_log.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
+#include <libswresample/swresample.h>
 };
 
 class WlAudio {
@@ -20,11 +22,23 @@ public:
     WlQueue *queue = nullptr;
     WlPlaystatus *playstatus = nullptr;
 
+    pthread_t thread_play;
+    AVPacket *avPacket = nullptr;
+    AVFrame *avFrame = nullptr;
+    int result = -1;
+    uint8_t *buffer = nullptr;
+    int data_size = 0;
+
 public:
     WlAudio(WlPlaystatus *playstatus);
 
     ~WlAudio();
 
+    void play();
+
+    int resampleAudio();
+
+    void ff();
 };
 
 
